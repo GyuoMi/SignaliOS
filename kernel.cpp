@@ -5,30 +5,29 @@ void printf(char* str)
     // 4 high bits + 4 low bits, foreground and background of char
     // on start up these are already at a kind of default (white text on black) so it's not needed to set manually
     // note to change for future when doing bg art
-    const int screenWidth = 80;
-    const int screenHeight = 25;
-    const int centerX = screenWidth / 2;
-    const int centerY = screenHeight / 2;
+    // Video memory address for VGA text mode
+    unsigned short* VideoMemory = (unsigned short*)0xb8000;
 
-    // Calculate the starting position for the ASCII art
-    unsigned short* VideoMemory = (unsigned short*)(0xb8000 + centerY * screenWidth + centerX);
+    // Constants for screen dimensions
+    int screenWidth = 80;  // Assuming 80 columns in VGA text mode
+    int screenHeight = 25; // Assuming 25 rows in VGA text mode
 
-    // Set the color attribute for red text on black background
-    unsigned short color = 0x4F00;
+    // Calculate the center position
+    int centerRow = screenHeight / 2;
+    int centerCol = (screenWidth - 13) / 2;
 
-    for (int i = 0; str[i] != '\0'; ++i)
-    {
-        // Check for newline character and update position accordingly
-        if (str[i] == '\n')
-        {
-            // Move to the next line
-            VideoMemory += screenWidth - centerX;
-        }
-        else
-        {
-            // Print the ASCII art letter with red color
-            VideoMemory[i] = color | str[i];
-        }
+    // Loop through each character in the input string
+    for (int i = 0; str[i] != '\0'; ++i) {
+        // Calculate the position in the video memory
+        int position = (centerRow * screenWidth) + centerCol + i;
+
+        // Set the ASCII art character at the center of the screen
+        VideoMemory[position] = (VideoMemory[position] & 0xFF00) | str[i];
+
+        // Set the colour (alternating between shades of red and white)
+        // colours: 0x04 (dark red), 0x0C (light red), 0x07 (white)
+        unsigned short colour = ((i % 3) == 0 ? 0x0400 : ((i % 3) == 1 ? 0x0C00 : 0x0700));
+        VideoMemory[position] |= colour;
     }
 } 
 typedef void (*constructor)();
@@ -45,7 +44,7 @@ extern "C" void callConstructors()
 // magic number could be used for error checking
 extern "C" void kernelMain(const void* multiboot_structure, unsigned int magic_number)
 {
-    printf("A C H T U N G");
-
-    while(1);
+    while(1){
+        printf("A C H T U N G");
+    }
 }

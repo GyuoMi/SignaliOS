@@ -37,6 +37,8 @@ mykernel.iso: mykernel.bin
 	echo '  multiboot /boot/mykernel.bin'    >> iso/boot/grub/grub.cfg
 	echo '  boot'                            >> iso/boot/grub/grub.cfg
 	echo '}'                                 >> iso/boot/grub/grub.cfg
+	grub-mkrescue --output=mykernel.iso iso
+	rm -rf iso
 
 # run the os in a virtualbox vm
 run: mykernel.iso

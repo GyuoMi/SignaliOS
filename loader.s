@@ -15,12 +15,14 @@
 # assume kernelMain is there, the linker will take care of it
 .section .text
 .extern kernelMain # declare external symbols for kernelMain and 
+.extern callConstructors # invoke pointers to constructors 
 .global loader # Declare loader as a global symbol
 
 # entry point
 loader:
 # esp is the register that stores the memory address of the stack pointer
     mov $kernel_stack, %esp # set stack pointer to kernel_stack
+    call callConstructors
     # before the bootloader loads the kernel it will need to store the following into RAM
     push %eax # accumulator eax used since we start off in 32 bits
     push %ebx # base stores magic number, same idea with 32 bits

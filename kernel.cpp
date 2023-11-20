@@ -1,3 +1,5 @@
+#include "types.h"
+
 void printf(char* str)
 {
     // anything written at this address will be printed on screen
@@ -6,7 +8,7 @@ void printf(char* str)
     // on start up these are already at a kind of default (white text on black) so it's not needed to set manually
     // note to change for future when doing bg art
     // Video memory address for VGA text mode
-    unsigned short* VideoMemory = (unsigned short*)0xb8000;
+    static uint16_t* VideoMemory = (uint16_t*)0xb8000;
 
     // Constants for screen dimensions
     int screenWidth = 80;  // Assuming 80 columns in VGA text mode
@@ -42,7 +44,7 @@ extern "C" void callConstructors()
 
 
 // magic number could be used for error checking
-extern "C" void kernelMain(const void* multiboot_structure, unsigned int magic_number)
+extern "C" void kernelMain(const void* multiboot_structure, uint32_t magic_number)
 {
     while(1){
         printf("A C H T U N G");

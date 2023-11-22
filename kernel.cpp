@@ -10,6 +10,7 @@ void printf(char* str)
     // Video memory address for VGA text mode
     static uint16_t* VideoMemory = (uint16_t*)0xb8000;
 
+    // might need to update later if compiler issues with inconsistent int sizes
     // Constants for screen dimensions
     int screenWidth = 80;  // Assuming 80 columns in VGA text mode
     int screenHeight = 25; // Assuming 25 rows in VGA text mode
@@ -28,7 +29,7 @@ void printf(char* str)
 
         // Set the colour (alternating between shades of red and white)
         // colours: 0x04 (dark red), 0x0C (light red), 0x07 (white)
-        unsigned short colour = ((i % 3) == 0 ? 0x0400 : ((i % 3) == 1 ? 0x0C00 : 0x0700));
+        uint16_t colour = ((i % 3) == 0 ? 0x0400 : ((i % 3) == 1 ? 0x0C00 : 0x0700));
         VideoMemory[position] |= colour;
     }
 } 

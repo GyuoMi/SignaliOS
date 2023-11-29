@@ -1,4 +1,3 @@
-
 #include "gdt.h"
 
 
@@ -32,7 +31,7 @@ uint16_t GlobalDescriptorTable::CodeSegmentSelector()
     return (uint8_t*)&codeSegmentSelector - (uint8_t*)this;
 }
 
-GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t type)
+GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint32_t limit, uint8_t flags)
 {
     uint8_t* target = (uint8_t*)this;
 
@@ -46,9 +45,6 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
         // 32-bit address space
         // we must fit the 32-bit limit into (20-bit) 2.5 registers
         // we do this by checking if the last 12 bits of the limit = 1
-        // Now we have to squeeze the (32-bit) limit into 2.5 registers (20-bit).
-        // This is done by discarding the 12 least significant bits, but this
-        // is only legal, if they are all ==1, so they are implicitly still there
 
         // so if the last bits aren't all 1, we have to set them to 1, but this
         // would increase the limit (cannot do that, because we might go beyond
@@ -67,6 +63,7 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
     // Encode the limit
     target[0] = limit & 0xFF;
     target[1] = (limit >> 8) & 0xFF;
+    // isolate lower 4 bits
     target[6] |= (limit >> 16) & 0xF;
 
     // Encode the base
@@ -75,12 +72,13 @@ GlobalDescriptorTable::SegmentDescriptor::SegmentDescriptor(uint32_t base, uint3
     target[4] = (base >> 16) & 0xFF;
     target[7] = (base >> 24) & 0xFF;
 
-    // Type
-    target[5] = type;
+    // flags
+    target[5] = flags;
 }
 
 uint32_t GlobalDescriptorTable::SegmentDescriptor::Base()
 {
+    //all 4 bytes are preserved 
     uint8_t* target = (uint8_t*)this;
 
     uint32_t result = target[7];
@@ -98,7 +96,7 @@ uint32_t GlobalDescriptorTable::SegmentDescriptor::Limit()
     uint32_t result = target[6] & 0xF;
     result = (result << 8) + target[1];
     result = (result << 8) + target[0];
-
+// only necessary to shift by 12 if conditional else is followed above
     if((target[6] & 0xC0) == 0xC0)
         result = (result << 12) | 0xFFF;
 

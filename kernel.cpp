@@ -1,4 +1,6 @@
 #include "types.h"
+#include "gdt.h"
+#include "interrupts.h"
 
 void printf(char* str)
 {
@@ -12,12 +14,10 @@ void printf(char* str)
 
     // might need to update later if compiler issues with inconsistent int sizes
     // Constants for screen dimensions
-    int screenWidth = 80;  // Assuming 80 columns in VGA text mode
-    int screenHeight = 25; // Assuming 25 rows in VGA text mode
+    static uint8_t screenWidth = 80,  screenHeight = 25;
 
     // Calculate the center position
-    int centerRow = screenHeight / 2;
-    int centerCol = (screenWidth - 13) / 2;
+    static uint8_t centerRow = screenHeight / 2, centerCol = (screenWidth - 13) / 2;
 
     // Loop through each character in the input string
     for (int i = 0; str[i] != '\0'; ++i) {
@@ -45,9 +45,15 @@ extern "C" void callConstructors()
 
 
 // magic number could be used for error checking
-extern "C" void kernelMain(const void* multiboot_structure, uint32_t magic_number)
+extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*magic_number*/)
 {
-    while(1){
-        printf("A C H T U N G");
-    }
+
+    printf("A C H T U N G");
+
+    GlobalDescriptorTable gdt;
+    // instantiate table --> hardware
+    InterruptManager interrupts(&gdt);
+
+    interrupts.Activate();
+    while(1);
 }

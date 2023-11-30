@@ -9,7 +9,7 @@ ASPARAMS = --32
 LDPARAMS = -melf_i386
 
 # object files list
-objects = loader.o gdt.o port.o interruptstubs.o interrupts.o kernel.o
+objects = loader.o gdt.o port.o interruptstubs.o interrupts.o keyboard.o kernel.o
 
 
 # compile c++ source files to object files

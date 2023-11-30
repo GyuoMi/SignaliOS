@@ -23,7 +23,13 @@ void InterruptManager::SetInterruptDescriptorTableEntry(
 }
 
 InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
+:picMasterCommand(0x20),
+ picMasterData(0x21),
+ picSlaveCommand(0xA0),
+ picSlaveData(0xA1)
 {
+
+
 	uint16_t CodeSegment = gdt->CodeSegmentSelector();
 	const uint8_t IDT_INTERRUPT_GATE = 0xE;
 
@@ -35,6 +41,25 @@ InterruptManager::InterruptManager(GlobalDescriptorTable *gdt)
 	/* getting an interrupt 21 will jump to interrupts.s HandleInterrupt function with 0x20 (IRQ) + 0x01 (num)
 	 which will be pushed when that jumps to int_bottom*/
 	SetInterruptDescriptorTableEntry(0x21, CodeSegment, &HandleInterruptRequest0x01, 0, IDT_INTERRUPT_GATE);
+
+	//communicate with pics in order to use idt
+	// pressing kb, we get interrupt 1
+	// but cpu uses this interrupt number internally for exceptions
+	// so tell master pic to add 0x20 to interrupt, slave is told to add 0x28 (both have 8 interrupts to use)
+	picMasterCommand.Write(0x11);
+	picSlaveCommand.Write(0x11);
+
+	picMasterData.Write(0x20); //20 - 27
+	picSlaveData.Write(0x28); // 28 - 30
+
+	picMasterData.Write(0x04); //tells master it is master
+	picSlaveData.Write(0x02); //tells slave it is slave
+	
+	picMasterData.Write(0x01);
+	picSlaveData.Write(0x01);
+
+	picMasterData.Write(0x00);
+	picSlaveData.Write(0x00);
 
 	//tell processor to user interruptDescriptorTable via pointer
 	InterruptDescriptorTablePointer idt;

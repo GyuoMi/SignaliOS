@@ -36,6 +36,13 @@ padding between members, ensuring that each member is packed tightly without
 		uint8_t DescriptorType
 	);
 
+
+	//ports for communication with PIC (Master & Slave)
+	Port8BitSlow picMasterCommand;
+	Port8BitSlow picMasterData;
+	Port8BitSlow picSlaveCommand;
+	Port8BitSlow picSlaveData;
+
 	public:
 
 		InterruptManager(GlobalDescriptorTable* gdt);

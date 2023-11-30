@@ -4,7 +4,7 @@
 # publish jump label to outside
 .extern _ZN16InterruptManager15handleInterruptEhj
 
-.global _ZN16InterruptManager22HandleInterruptRequestEv
+.global _ZN16InterruptManager22IgnoreInterruptRequestEv
 
 .macro HandleExceptions num
 # c++ mangling {Ev for void return type}
@@ -47,7 +47,7 @@ int_bottom:
     popl %ds
     popa
 
-_ZN16InterruptManager22HandleInterruptRequestEv:
+_ZN16InterruptManager22IgnoreInterruptRequestEv:
 
     iret
 
